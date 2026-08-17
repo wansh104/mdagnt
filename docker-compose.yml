@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  postgres:
+    image: ankane/pgvector:latest
+    environment:
+      POSTGRES_USER: medagent
+      POSTGRES_PASSWORD: medagent_dev
+      POSTGRES_DB: medagent
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+ 
+  api:
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://medagent:medagent_dev@postgres:5432/medagent?sslmode=disable
+      JWT_SECRET: change_me_in_prod
+      LLM_API_KEY: ${LLM_API_KEY}
+    ports:
+      - "8080:8080"
+ 
+volumes:
+  pgdata:
+ 
