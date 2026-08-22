@@ -1,0 +1,10 @@
+Coverage Criteria for Lumbar MRI
+
+Section 1: General Requirements
+An MRI of the lumbar spine is considered medically necessary when the patient has experienced lower back pain for at least 6 weeks AND has completed a trial of conservative treatment, including physical therapy or NSAIDs, without significant improvement.
+
+Section 2: Red Flag Symptoms
+An MRI may be approved without the 6-week conservative treatment requirement if the patient presents with any of the following red flag symptoms: progressive neurological deficit, loss of bowel or bladder control, unexplained weight loss combined with back pain, or history of cancer with new onset back pain.
+
+Section 3: Exclusions
+Routine MRI for acute low back pain of less than 6 weeks duration, in the absence of red flag symptoms, is not considered medically necessary and will not be approved.

@@ -1,3 +1,6 @@
 *.exe
 *.test
 .env
+agent_service/venv/
+**/__pycache__/
+*.pyc

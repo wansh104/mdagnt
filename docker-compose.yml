@@ -11,18 +11,5 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
- 
-  api:
-    build: .
-    depends_on:
-      - postgres
-    environment:
-      DATABASE_URL: postgres://medagent:medagent_dev@postgres:5432/medagent?sslmode=disable
-      JWT_SECRET: change_me_in_prod
-      LLM_API_KEY: ${LLM_API_KEY}
-    ports:
-      - "8080:8080"
- 
 volumes:
   pgdata:
- 

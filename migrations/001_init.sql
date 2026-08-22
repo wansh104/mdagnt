@@ -1,4 +1,3 @@
--- Enable pgvector for policy clause embeddings
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -7,7 +6,6 @@ CREATE TABLE organizations (
     name TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -21,42 +19,36 @@ CREATE TABLE users (
 CREATE TABLE patients (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     org_id UUID NOT NULL REFERENCES organizations(id),
-    display_name TEXT NOT NULL, -- synthetic data only, never real PHI
+    display_name TEXT NOT NULL,
     date_of_birth DATE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Payer policy documents (e.g. a CMS LCD PDF)
 CREATE TABLE policies (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     payer_name TEXT NOT NULL,
     title TEXT NOT NULL,
-    source_url TEXT,
     raw_text TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-
--- Chunked, embedded clauses of a policy — this is what gets retrieved
 CREATE TABLE policy_clauses (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     policy_id UUID NOT NULL REFERENCES policies(id) ON DELETE CASCADE,
     clause_text TEXT NOT NULL,
-    embedding vector(768), -- matches text-embedding-3-small dims
+    embedding vector(768),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-
 CREATE INDEX ON policy_clauses USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
 
--- A prior-auth request being processed
 CREATE TABLE cases (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     org_id UUID NOT NULL REFERENCES organizations(id),
     patient_id UUID NOT NULL REFERENCES patients(id),
     created_by UUID NOT NULL REFERENCES users(id),
     treatment_requested TEXT NOT NULL,
-    clinical_note TEXT NOT NULL, -- synthetic
-    policy_id UUID REFERENCES policies(id),
+    clinical_note TEXT NOT NULL,
+    policy_id UUID NOT NULL REFERENCES policies(id),
     status TEXT NOT NULL DEFAULT 'pending' CHECK (
         status IN ('pending', 'processing', 'auto_approved', 'needs_review', 'approved', 'rejected')
     ),
@@ -64,7 +56,6 @@ CREATE TABLE cases (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- One row per agent pipeline execution for a case
 CREATE TABLE agent_runs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     case_id UUID NOT NULL REFERENCES cases(id) ON DELETE CASCADE,
@@ -74,7 +65,6 @@ CREATE TABLE agent_runs (
     final_status TEXT
 );
 
--- One row per agent step within a run — this is the audit trail
 CREATE TABLE agent_steps (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     agent_run_id UUID NOT NULL REFERENCES agent_runs(id) ON DELETE CASCADE,
@@ -89,7 +79,6 @@ CREATE TABLE agent_steps (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Human review / final decision on a case
 CREATE TABLE reviews (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     case_id UUID NOT NULL REFERENCES cases(id) ON DELETE CASCADE,
@@ -99,6 +88,3 @@ CREATE TABLE reviews (
     edited_justification TEXT,
     reviewed_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-
-CREATE INDEX idx_cases_org_status ON cases(org_id, status);
-CREATE INDEX idx_agent_steps_run ON agent_steps(agent_run_id, step_order);

@@ -24,6 +24,7 @@ func main() {
 	}
 
 	ctx := context.Background()
+	fmt.Printf("DEBUG connecting with: %q\n", os.Getenv("DATABASE_URL"))
 	db, err := pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatalf("failed to connect to db: %v", err)
