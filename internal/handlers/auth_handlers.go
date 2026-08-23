@@ -39,7 +39,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r*http.Request){
 	}
 
 	var userID string
-	err = h.DB.QueryRow(r.Context(),`INSERT INTO users (org_id, email, password_hash, role) VALUES ($1, $2, $3) RETURNING id`, req.OrgID, req.Email, hash, req.Role).Scan(&userID)
+	err = h.DB.QueryRow(r.Context(),`INSERT INTO users (org_id, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id`, req.OrgID, req.Email, hash, req.Role).Scan(&userID)
 	if err!=nil{
 		http.Error(w,"failed to create user",http.StatusConflict)
 		return
