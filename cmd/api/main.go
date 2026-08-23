@@ -22,6 +22,7 @@ func main() {
 
 	authHandler := &handlers.AuthHandler{DB: pool}
 	caseHandler := &handlers.CaseHandler{DB: pool}
+	reviewHandler := &handlers.ReviewHandler{DB: pool}
 
 	r := chi.NewRouter()
 
@@ -32,6 +33,11 @@ func main() {
 		r.Use(middleware.RequireAuth)
 		r.Get("/api/cases", caseHandler.ListCases)
 		r.Post("/api/cases", caseHandler.CreateCase)
+
+		r.Group(func(r chi.Router) {
+			r.Use(middleware.RequireRole("reviewer", "admin"))
+			r.Post("/api/cases/{id}/review", reviewHandler.SubmitReview)
+		})
 	})
 
 	log.Println("listening on :8080")
