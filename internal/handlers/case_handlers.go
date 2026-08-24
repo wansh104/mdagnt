@@ -32,8 +32,8 @@ func (h *CaseHandler) ListCases(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := h.DB.Query(context.Background(),
-		`SELECT id, treatment_requested, status, created_at
-		 FROM cases WHERE org_id = $1 ORDER BY created_at DESC`,
+		`SELECT id::text, treatment_requested, status, created_at::text
+ 		FROM cases WHERE org_id = $1 ORDER BY created_at DESC`,
 		claims.OrgID,
 	)
 	if err != nil {

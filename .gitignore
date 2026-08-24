@@ -4,3 +4,4 @@
 agent_service/venv/
 **/__pycache__/
 *.pyc
+node_modules/
